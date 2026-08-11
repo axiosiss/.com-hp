@@ -23,7 +23,7 @@
     </div>
 
     <div class="space-y-6">
-        <!-- Section d'invitation avec votre lien exact -->
+        <!-- Section d'invitation avec code à 6 lettres minuscules -->
         <div class="glass-card p-6">
             <p class="text-[11px] font-black text-gray-400 uppercase mb-4 tracking-widest text-center">Invitez vos amis</p>
             <div class="bg-blue-50/50 p-4 rounded-2xl border border-dashed border-blue-200 mb-4 flex items-center justify-between">
@@ -33,7 +33,7 @@
                 </div>
                 <button onclick="copyInvite()" class="bg-blue-600 text-white text-[10px] font-black px-4 py-3 rounded-xl shadow-md active:scale-95 transition-all">COPIER</button>
             </div>
-            <p class="text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">Code : <span id="codeSpan" class="text-blue-600 font-black">---</span></p>
+            <p class="text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">Code : <span id="codeSpan" class="text-blue-600 font-black lowercase">---</span></p>
         </div>
 
         <!-- Statistiques Équipe -->
@@ -75,8 +75,22 @@
 
         if(!session) window.location.href = "index.html";
 
-        // Initialisation avec votre lien exact de déploiement GitHub Pages pour HP INVEST
-        const myInviteCode = session.telephone.replace("+243", "HP");
+        // Fonction pour générer un code stable de exactement 6 lettres minuscules basé sur le téléphone
+        function generateSixLetterCode(phone) {
+            const letters = "abcdefghijklmnopqrstuvwxyz";
+            let hash = 0;
+            for (let i = 0; i < phone.length; i++) {
+                hash = phone.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            let code = "";
+            for (let i = 0; i < 6; i++) {
+                let index = Math.abs((hash + i * 7) % letters.length);
+                code += letters[index];
+            }
+            return code;
+        }
+
+        const myInviteCode = generateSixLetterCode(session.telephone);
         document.getElementById('codeSpan').innerText = myInviteCode;
         document.getElementById('linkSpan').innerText = "https://axiosiss.github.io/.com-hp/register.html?ref=" + myInviteCode;
 
@@ -100,7 +114,6 @@
                 let members = [];
                 let totalCommCalculated = 0;
 
-                // Logique multi-niveaux basée sur le parrainage en chaîne
                 if (lvl === 1) {
                     for (let id in allUsers) {
                         if (allUsers[id].parrain === myInviteCode) {
@@ -109,17 +122,16 @@
                         }
                     }
                 } else if (lvl === 2) {
-                    // Trouver les filleuls de niveau 1, puis leurs filleuls (niveau 2)
                     let lvl1Codes = [];
                     for (let id in allUsers) {
                         if (allUsers[id].parrain === myInviteCode) {
-                            lvl1Codes.push(allUsers[id].telephone.replace("+243", "HP"));
+                            lvl1Codes.push(generateSixLetterCode(allUsers[id].telephone));
                         }
                     }
                     for (let id in allUsers) {
                         if (lvl1Codes.includes(allUsers[id].parrain)) {
                             members.push(allUsers[id]);
-                            totalCommCalculated += (allUsers[id].commissionsGenerees || 0) * 0.08; // proportion estimée ou cumul
+                            totalCommCalculated += (allUsers[id].commissionsGenerees || 0) * 0.08;
                         }
                     }
                 } else if (lvl === 3) {
@@ -127,12 +139,12 @@
                     let lvl2Codes = [];
                     for (let id in allUsers) {
                         if (allUsers[id].parrain === myInviteCode) {
-                            lvl1Codes.push(allUsers[id].telephone.replace("+243", "HP"));
+                            lvl1Codes.push(generateSixLetterCode(allUsers[id].telephone));
                         }
                     }
                     for (let id in allUsers) {
                         if (lvl1Codes.includes(allUsers[id].parrain)) {
-                            lvl2Codes.push(allUsers[id].telephone.replace("+243", "HP"));
+                            lvl2Codes.push(generateSixLetterCode(allUsers[id].telephone));
                         }
                     }
                     for (let id in allUsers) {
