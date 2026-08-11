@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HP | Inscription</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background: #000 url('IMG_6517.jpeg') no-repeat center center fixed;
+            background-size: cover; 
+            font-family: 'Poppins', sans-serif;
+        }
+        .register-card {
+            background: rgba(0, 0, 0, 0.85); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(30, 58, 138, 0.5); /* Bordure bleu foncé */
+            width: 100%; 
+            max-width: 420px;
+            box-sizing: border-box;
+        }
+        .input-group { 
+            background: #ffffff; /* Fond blanc pour faire ressortir le noir */
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            color: #000000; /* Écriture noire */
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .input-group:focus-within {
+            border-color: #1e3a8a; /* Focus bleu foncé */
+            box-shadow: 0 0 10px rgba(30, 58, 138, 0.4);
+        }
+        input { 
+            background: transparent; 
+            border: none; 
+            outline: none; 
+            color: #000000; /* Écriture noire */
+            width: 100%; 
+            padding: 18px; 
+            font-size: 16px; 
+        }
+        input::placeholder { color: rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body class="p-4">
+
+    <div class="register-card p-8 sm:p-10 rounded-[2.5rem] shadow-2xl">
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-black tracking-tight text-white uppercase">HP</h1>
+            <p class="text-[11px] uppercase tracking-[0.4em] text-blue-400 mt-2 font-bold">Nouveau Compte RDC</p>
+        </div>
+
+        <form id="regForm" class="space-y-5">
+            <div>
+                <label class="text-[11px] uppercase font-black text-white ml-1 tracking-widest block mb-1">Numéro (+243)</label>
+                <div class="input-group px-4 rounded-2xl">
+                    <span class="text-black font-bold text-lg select-none">+243</span>
+                    <input type="tel" id="tel" placeholder="812345678" maxlength="9" required>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[11px] uppercase font-black text-white ml-1 tracking-widest block mb-1">Mot de passe</label>
+                    <div class="input-group rounded-2xl">
+                        <input type="password" id="p1" placeholder="Mot de passe (6 car.)" maxlength="6" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[11px] uppercase font-black text-white ml-1 tracking-widest block mb-1">Confirmation</label>
+                    <div class="input-group rounded-2xl">
+                        <input type="password" id="p2" placeholder="Confirmer mot de passe" maxlength="6" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <label class="text-[11px] uppercase font-black text-white ml-1 tracking-widest block mb-1">Code Invitation</label>
+                <div class="input-group rounded-2xl">
+                    <!-- Restriction de saisie aux lettres minuscules et 6 caractères max -->
+                    <input type="text" id="inv" placeholder="6 lettres minuscules" class="font-bold text-blue-900 text-center text-lg tracking-widest" maxlength="6" oninput="this.value = this.value.toLowerCase().replace(/[^a-z]/g, '')" required>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="bg-blue-900 text-white font-black w-full py-5 rounded-2xl text-[14px] uppercase mt-6 shadow-xl hover:bg-blue-950 active:scale-95 transition-all block text-center">
+                Créer mon compte
+            </button>
+        </form>
+
+        <div class="mt-8 text-center text-white/80 text-sm">
+            Déjà inscrit ? <a href="index.html" class="text-blue-400 font-bold underline ml-1">Se connecter</a>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. FONCTION POUR RÉCUPÉRER LE CODE DANS L'URL ---
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref'); 
+            
+            if (refCode) {
+                const invInput = document.getElementById('inv');
+                // On s'assure que le code récupéré dans l'URL est aussi forcé en minuscules et limité à 6 lettres
+                invInput.value = refCode.toLowerCase().replace(/[^a-z]/g, '').substring(0, 6);
+                console.log("Code de parrainage détecté : " + refCode);
+            }
+        };
+
+        // --- 2. GESTION DE L'INSCRIPTION ---
+        document.getElementById('regForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('tel').value;
+            const pass1 = document.getElementById('p1').value;
+            const pass2 = document.getElementById('p2').value;
+            const inviteCode = document.getElementById('inv').value;
+            const btn = document.getElementById('submitBtn');
+
+            if(pass1.length < 6) {
+                alert("❌ Le mot de passe doit faire au moins 6 caractères.");
+                return;
+            }
+
+            if(pass1 !== pass2) {
+                alert("❌ Les mots de passe ne correspondent pas !");
+                return;
+            }
+
+            // Vérification stricte : exactement 6 lettres minuscules
+            const inviteRegex = /^[a-z]{6}$/;
+            if(!inviteRegex.test(inviteCode)) {
+                alert("❌ Le code d'invitation doit être composé d'exactement 6 lettres minuscules.");
+                return;
+            }
+
+            btn.innerText = "PATIENTEZ...";
+            btn.disabled = true;
+
+            const userData = {
+                telephone: "+243" + phone,
+                motDePasse: pass1,
+                parrain: inviteCode, 
+                solde: 0,
+                dateInscription: new Date().toISOString(),
+                status: "Actif"
+            };
+
+            fetch('https://sonyy-9b565-default-rtdb.firebaseio.com/utilisateurs.json', {
+                method: 'POST',
+                body: JSON.stringify(userData)
+            })
+            .then(res => {
+                if(res.ok) {
+                    alert("✅ Bienvenue sur HP RDC !");
+                    window.location.href = "index.html";
+                } else { throw new Error(); }
+            })
+            .catch(() => {
+                alert("❌ Erreur. Vérifiez votre connexion.");
+                btn.innerText = "CRÉER MON COMPTE";
+                btn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
